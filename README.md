@@ -1,9 +1,11 @@
-TODO list:
+## TODO list:
+
 - [x] use low complexity models
 - [x] try geometry nodes instances
 - [x] realize instances !!
 - [x] delete *blue* hidden faces, e.g. faces pointing down if camera is locked (red will not show anyways)
 - [x] check normals with Face Orientation (Alt+N to flip)
+
 procedural materials (**does not apply to this project**):
 visualize everything in solid view using "Texture" option to see grid texture
     - [ ] create new UV map for baking -> **higlight it when creating all the seams**
@@ -14,6 +16,8 @@ objects having similar geometries can copy UV maps from the well unwrapped one (
 
     - [ ] create image texture (4K, full white, no alpha if nothing transparent, 32-bit float) and save as Radiance HDR
     - [ ] ...
+
+
 - [x] adapt image textures on UV map, not in nodes 
 - [x] duplicate models with modifiers and hide them in other collection (allows for tweaks later on in .blend file)
 - [x] apply all modifiers before exporting, (F3 -> convert to mesh)  
@@ -22,5 +26,24 @@ objects having similar geometries can copy UV maps from the well unwrapped one (
 
 creating web page:
 - [x] open folder, run in terminal "npm create vite@latest" or any newer command
-- [x] setup name, framework and variants, then run "cd your_name", "npm install three", "npm run dev" (last command is to get website, so run every opening)
-- [x]  
+- [x] setup name, framework and variants, then run "cd your_name", "npm install three", "npm run dev" (last command is to get website, so run every subsequent opening)
+- [x] setup three.js: import css file and three, add canvas in HTML file using .experience>canvas#your_name, and in js file add scene, camera and renderer
+- [x] in css file, general format with *{m0,p0, border-sizing: border-box}
+- [x] load object, if too heavy for github use glTF report to compress and import relevant loader for GLTFLOADER
+    - when importing relevant loader, copy paste from /nodemodules/libs in own folder (is easier)
+
+- [x] handle the resizing of the web window and set the animate() function
+- [x] enable shadow map in renderer and cast shadows from light, tell loader if child is a mesh, then cast shadows
+- [x] tweak as wanted: shadow map size and type, tone mapping style and exposure
+
+- [x] interact with mouse button using raycaster, only on specific objects in array
+    - [ ] project panels redirect to project websites
+    - [ ] trees do funsies
+    - [ ] directions pop information panel 
+    - [ ] what is modal in HTML ?
+- [x] make character move using arrow and wasd keys, but also not racistly (event.code instead of event.key)
+- [x] animate with GSAP
+    - [ ] fix rotation 
+    - [ ] add collisions
+    - [ ] add respawn 
+    - [ ] add ultimate
