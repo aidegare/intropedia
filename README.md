@@ -36,14 +36,23 @@ creating web page:
 - [x] enable shadow map in renderer and cast shadows from light, tell loader if child is a mesh, then cast shadows
 - [x] tweak as wanted: shadow map size and type, tone mapping style and exposure
 
+
 - [x] interact with mouse button using raycaster, only on specific objects in array
     - [ ] project panels redirect to project websites
     - [ ] trees do funsies
     - [ ] directions pop information panel 
     - [ ] what is modal in HTML ?
+
 - [x] make character move using arrow and wasd keys, but also not racistly (event.code instead of event.key)
+- [x] make camera follow character from relevant angle
 - [x] animate with GSAP
     - [ ] fix rotation 
     - [ ] add collisions
     - [ ] add respawn 
     - [ ] add ultimate
+
+- [ ] add collisions
+    - [ ] add 'bounding boxes' for models in Blender, refer to start of checklist !
+    - [ ] translate animations with GSAP to custom (mainly works if everything is at same height)
+    - [ ] create Octree and gravity system
+
