@@ -92,6 +92,8 @@ camera.position.z = -60;
 camera.zoom = 3;
 const cameraOffset = new THREE.Vector3(86, 50, -60);
 
+
+
 const controls = new OrbitControls( camera, canvas );
 controls.update();
 
@@ -146,6 +148,14 @@ function onPointerMove( event ) {
 function moveCharacter(targetPosition, targetRotation) {
   character.isMoving = true;
 
+  let rotationDiff =
+    ((((targetRotation - character.instance.rotation.y) % (2 * Math.PI)) +
+      3 * Math.PI) %
+      (2 * Math.PI)) -
+    Math.PI;
+  let finalRotation = character.instance.rotation.y + rotationDiff;
+
+
   const t1 = gsap.timeline({ onComplete: () => {
     character.isMoving = false;
   }});
@@ -159,7 +169,7 @@ function moveCharacter(targetPosition, targetRotation) {
 
   t1.to(character.instance.rotation, {
     duration: character.jumpDuration ,
-    y: targetRotation,
+    y: finalRotation,
   }, 0);
 
   t1.to(character.instance.position, 
@@ -260,6 +270,17 @@ function animate() {
 	for ( let i = 0; i < intersects.length; i ++ ) {
 	  intersectObject = intersects[0].object.parent.name;
 	}
+  if (character.instance) {
+    const targetCameraPosition = new THREE.Vector3(
+      character.instance.position.x + cameraOffset.x,
+      camera.position.y,
+      character.instance.position.z + cameraOffset.z
+    )
+    camera.position.copy(targetCameraPosition);
+    camera.lookAt(character.instance.position.x, 0, character.instance.position.z);
+  }
+  
+
   renderer.render( scene, camera );
   
 } 
