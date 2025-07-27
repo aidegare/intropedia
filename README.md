@@ -52,10 +52,10 @@ creating web page:
     - [ ] add ultimate
 
 - [ ] change scene:
-    - [ ] make paths more visible
+    - [x] make paths more visible
     - [ ] add doors
-    - [ ] rocks consistent with designs
-    - [ ] restore tree geometry
+    - [x] rocks consistent with designs
+    - [x] restore tree geometry
 
 - [ ] add collisions
     - [ ] add 'bounding boxes' for models in Blender, refer to start of checklist !
