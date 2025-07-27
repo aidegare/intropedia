@@ -109,7 +109,7 @@ dracoLoader.preload();
 const loader = new GLTFLoader();
 loader.setDRACOLoader( dracoLoader );
 
-loader.load( '/models/crossy_blocks-v1.glb', function ( glb ) {
+loader.load( '/models/crossy_road3.glb', function ( glb ) {
   scene.add( glb.scene );
   // tell light that if child is mesh, then cast shadows
   glb.scene.traverse( function ( child ) {
@@ -184,7 +184,7 @@ function moveCharacter(targetPosition, targetRotation) {
 
 
 function onKeyDown( event ) {
-  console.log(event);
+  // console.log(event);
   if (character.isMoving) return;
 
   const targetPosition = new THREE.Vector3().copy(character.instance.position);
@@ -277,7 +277,7 @@ function animate() {
       character.instance.position.z + cameraOffset.z
     )
     camera.position.copy(targetCameraPosition);
-    camera.lookAt(character.instance.position.x, 0, character.instance.position.z);
+    camera.lookAt(character.instance.position.x, 2, character.instance.position.z);
   }
   
 
