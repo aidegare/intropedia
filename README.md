@@ -46,10 +46,16 @@ creating web page:
 - [x] make character move using arrow and wasd keys, but also not racistly (event.code instead of event.key)
 - [x] make camera follow character from relevant angle
 - [x] animate with GSAP
-    - [ ] fix rotation 
+    - [x] fix rotation 
     - [ ] add collisions
     - [ ] add respawn 
     - [ ] add ultimate
+
+- [ ] change scene:
+    - [ ] make paths more visible
+    - [ ] add doors
+    - [ ] rocks consistent with designs
+    - [ ] restore tree geometry
 
 - [ ] add collisions
     - [ ] add 'bounding boxes' for models in Blender, refer to start of checklist !
