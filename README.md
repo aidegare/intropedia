@@ -47,9 +47,10 @@ creating web page:
 - [x] make camera follow character from relevant angle
 - [x] animate with GSAP
     - [x] fix rotation 
-    - [ ] add collisions
-    - [ ] add respawn 
-    - [ ] add ultimate
+    *- [ ] add collisions*
+    - [x] add respawn
+        - [x] create spawn position for character
+    *- [ ] add ultimate*
 
 - [ ] change scene:
     - [x] make paths more visible
@@ -57,8 +58,16 @@ creating web page:
     - [x] rocks consistent with designs
     - [x] restore tree geometry
 
-- [ ] add collisions
-    - [ ] add 'bounding boxes' for models in Blender, refer to start of checklist !
-    - [ ] translate animations with GSAP to custom (mainly works if everything is at same height)
-    - [ ] create Octree and gravity system
+- [x] add collisions
+    - [x] add 'bounding boxes' for models in Blender, refer to start of checklist !
+    - [x] translate animations with GSAP to custom (mainly works if everything is at same height)
+    - [x] create Octree and gravity system
+    - [x] make collider-named child the octree collider and hide visibility
+    - [x] create capsule for character hitbox
+    - [x] check if collider and capsule intersect, if normal of the result > 0 then player is on floor and block character
+    - [x] update player stats
+        - [x] add gravity
+        - [x] move player according to new specs
+        - [x] make rotation make sense
+        - [x] add update in animate()
 
