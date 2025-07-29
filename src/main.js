@@ -1,7 +1,6 @@
 import './style.css'
 
 import * as THREE from 'three';
-import { gsap } from "gsap";
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 
@@ -13,10 +12,10 @@ const scene = new THREE.Scene();
 const canvas = document.querySelector('#experience');
 
 
-
-const axesHelper = new THREE.AxesHelper( 100 );
-axesHelper.position.set(50, 50, 50);
-scene.add( axesHelper );
+// Uncomment to see axes helper
+// const axesHelper = new THREE.AxesHelper( 100 );
+// axesHelper.position.set(50, 50, 50);
+// scene.add( axesHelper );
 
 
 
@@ -65,7 +64,6 @@ const intersectObjectsNames = [
   'project1',
   'project2',
   'door',
-  
 ];
 const intersectObjects = [];
 let intersectObject = "";
@@ -126,6 +124,8 @@ dracoLoader.setDecoderPath( '/draco/' );
 dracoLoader.preload();
 const loader = new GLTFLoader();
 loader.setDRACOLoader( dracoLoader );
+
+
 
 loader.load( '/models/crossy_road_w_colliders.glb', function ( glb ) {
   scene.add( glb.scene );
@@ -354,7 +354,7 @@ function animate() {
 	raycaster.setFromCamera( pointer, camera );
 
 
-  
+
 	// calculate objects intersecting the picking ray
 	const intersects = raycaster.intersectObjects( intersectObjects);
 
