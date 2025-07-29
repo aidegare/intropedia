@@ -4,8 +4,9 @@ import * as THREE from 'three';
 import { gsap } from "gsap";
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
+import { Octree } from "three/addons/math/Octree.js";
+import { Capsule } from "three/addons/math/Capsule.js";
 
 
 const scene = new THREE.Scene();
@@ -26,14 +27,33 @@ const sizes = {
 const aspect = sizes.width / sizes.height;
 
 
+// PHYSICS WOOOOO
+const GRAVITY = 30;
+const CAPSULE_RADIUS = 0.35;
+const CAPSULE_HEIGHT = 1.5;
+const JUMP_FORCE = 30;
+const MO_SPEED = 30;
+
+
 
 let character = {
   instance: null,
-  moveDistance: 3,
-  jumpHeight: 1,
-  jumpDuration: 0.2,
   isMoving: false,
+  spawnPosition: new THREE.Vector3(),
 };
+let targetRotation = 0;
+
+
+
+const colliderOctree = new Octree();
+const playerCollider = new Capsule(
+  new THREE.Vector3(0, CAPSULE_RADIUS, 0),
+  new THREE.Vector3(0, CAPSULE_HEIGHT, 0),
+  CAPSULE_RADIUS,
+);
+
+let playerOnFloor = false;
+let playerVelocity = new THREE.Vector3(0, 0, 0);
 
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
@@ -43,7 +63,10 @@ const intersectObjectsNames = [
   'big_tree003',
   'directions',
   'project1',
-  'project2',];
+  'project2',
+  'door',
+  
+];
 const intersectObjects = [];
 let intersectObject = "";
 
@@ -94,11 +117,6 @@ const cameraOffset = new THREE.Vector3(86, 50, -60);
 
 
 
-const controls = new OrbitControls( camera, canvas );
-controls.update();
-
-
-
 const dracoLoader = new DRACOLoader();
 
 // Specify path to a folder containing WASM/JS decoding libraries.
@@ -109,7 +127,7 @@ dracoLoader.preload();
 const loader = new GLTFLoader();
 loader.setDRACOLoader( dracoLoader );
 
-loader.load( '/models/crossy_road3.glb', function ( glb ) {
+loader.load( '/models/crossy_road_w_colliders.glb', function ( glb ) {
   scene.add( glb.scene );
   // tell light that if child is mesh, then cast shadows
   glb.scene.traverse( function ( child ) {
@@ -122,6 +140,13 @@ loader.load( '/models/crossy_road3.glb', function ( glb ) {
     }
     if (child.name === 'BOB001') {
       character.instance = child;
+      character.spawnPosition.copy(child.position);
+      playerCollider.start.copy(child.position).add(new THREE.Vector3(0, CAPSULE_RADIUS, 0));
+      playerCollider.end.copy(child.position).add(new THREE.Vector3(0, CAPSULE_HEIGHT, 0));
+    }
+    if (child.name === 'collider') {
+      colliderOctree.fromGraphNode(child);
+      child.visible = false;
     }
   } );
 
@@ -145,8 +170,94 @@ function onPointerMove( event ) {
 
 }
 
-function moveCharacter(targetPosition, targetRotation) {
-  character.isMoving = true;
+// kept movements for reference, not used in this version
+// function moveCharacter(targetPosition, targetRotation) {
+//   character.isMoving = true;
+
+//   let rotationDiff =
+//     ((((targetRotation - character.instance.rotation.y) % (2 * Math.PI)) +
+//       3 * Math.PI) %
+//       (2 * Math.PI)) -
+//     Math.PI;
+//   let finalRotation = character.instance.rotation.y + rotationDiff;
+
+
+//   const t1 = gsap.timeline({ onComplete: () => {
+//     character.isMoving = false;
+//   }});
+
+//   t1.to(character.instance.position, {
+//     duration: character.jumpDuration,
+//     x: targetPosition.x,
+//     z: targetPosition.z,
+    
+//   });
+
+//   t1.to(character.instance.rotation, {
+//     duration: character.jumpDuration ,
+//     y: finalRotation,
+//   }, 0);
+
+//   t1.to(character.instance.position, 
+//   {
+//     y: character.instance.position.y + character.jumpHeight,
+//     duration: character.jumpDuration/2 ,
+//     yoyo: true,
+//     repeat: 1,
+//     ease: "power1.inOut",
+//   }, "<");
+// }
+
+//respawns the character to its original position
+function respawnCharacter() {
+  if (!character.instance) return;
+  character.instance.position.copy(character.spawnPosition);
+  playerCollider.start.copy(character.spawnPosition).add(new THREE.Vector3(0, CAPSULE_RADIUS, 0));
+  playerCollider.end.copy(character.spawnPosition).add(new THREE.Vector3(0, CAPSULE_HEIGHT, 0));
+  
+  character.isMoving = false;
+  playerVelocity.set(0, 0, 0);
+  targetRotation = 0;
+  
+}
+
+// handles the collisions of the player with the environment
+function playerCollisions() {
+  const result = colliderOctree.capsuleIntersect(playerCollider);
+  playerOnFloor = false;
+  if (result) {
+    playerOnFloor = result.normal.y > 0;
+    playerCollider.translate(result.normal.multiplyScalar(result.depth));
+  }
+  if (playerOnFloor){
+    character.isMoving = false;
+    playerVelocity.x = 0;
+    playerVelocity.z = 0;
+  }
+}
+
+
+// handles player movement, if they fall, if they're on the floor, checks for collisions
+// also handles the rotation of the player
+// lerps the rotation to make it smoother
+function updatePlayer(){
+  if (!character.instance) return;
+
+  if( character.instance.position.y < -20) {
+    respawnCharacter();
+    return;
+  }
+  
+  if (!playerOnFloor) {
+    playerVelocity.y -= GRAVITY * 0.1;
+  } 
+
+  playerCollider.translate(playerVelocity.clone().multiplyScalar(0.01));
+
+  playerCollisions();
+
+  character.instance.position.copy(playerCollider.start);
+  character.instance.position.y -= CAPSULE_RADIUS;
 
   let rotationDiff =
     ((((targetRotation - character.instance.rotation.y) % (2 * Math.PI)) +
@@ -156,30 +267,11 @@ function moveCharacter(targetPosition, targetRotation) {
   let finalRotation = character.instance.rotation.y + rotationDiff;
 
 
-  const t1 = gsap.timeline({ onComplete: () => {
-    character.isMoving = false;
-  }});
-
-  t1.to(character.instance.position, {
-    duration: character.jumpDuration,
-    x: targetPosition.x,
-    z: targetPosition.z,
-    
-  });
-
-  t1.to(character.instance.rotation, {
-    duration: character.jumpDuration ,
-    y: finalRotation,
-  }, 0);
-
-  t1.to(character.instance.position, 
-  {
-    y: character.instance.position.y + character.jumpHeight,
-    duration: character.jumpDuration/2 ,
-    yoyo: true,
-    repeat: 1,
-    ease: "power1.inOut",
-  }, "<");
+  character.instance.rotation.y = THREE.MathUtils.lerp(
+    character.instance.rotation.y,
+    finalRotation,
+    0.1
+  );
 }
 
 
@@ -187,35 +279,37 @@ function onKeyDown( event ) {
   // console.log(event);
   if (character.isMoving) return;
 
-  const targetPosition = new THREE.Vector3().copy(character.instance.position);
-  let targetRotation = 0;
+  if (event.code.toLowerCase() === 'keyr') {
+    respawnCharacter();
+  }
 
   switch(event.code.toLowerCase()) {
     case 'keyw':
     case 'arrowup':
-      targetPosition.x -= character.moveDistance;
+      playerVelocity.x -= MO_SPEED;
       targetRotation = Math.PI / 2; // CHECK ROTATIONS PLS
       break;
     case 'keys':
     case 'arrowdown':
-      targetPosition.x += character.moveDistance;
+      playerVelocity.x += MO_SPEED;
       targetRotation = -Math.PI / 2;
       break;
     case 'keya':
     case 'arrowleft':
-      targetPosition.z += character.moveDistance;
+      playerVelocity.z += MO_SPEED;
       targetRotation = 0;
       break;
     case 'keyd':
     case 'arrowright':
-      targetPosition.z -= character.moveDistance;
+      playerVelocity.z -= MO_SPEED;
       targetRotation = Math.PI;
       break;
     default:
       return; // Exit if the key pressed is not one of the specified keys
     
   }
-  moveCharacter(targetPosition, targetRotation);
+  playerVelocity.y = JUMP_FORCE;
+  character.isMoving = true;
 }
 
 
@@ -254,9 +348,13 @@ window.addEventListener('keydown', onKeyDown);
 function animate() {
   requestAnimationFrame( animate );
   onResize();
+  updatePlayer();
+
   // update the picking ray with the camera and pointer position
 	raycaster.setFromCamera( pointer, camera );
 
+
+  
 	// calculate objects intersecting the picking ray
 	const intersects = raycaster.intersectObjects( intersectObjects);
 
