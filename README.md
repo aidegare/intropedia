@@ -13,7 +13,6 @@ visualize everything in solid view using "Texture" option to see grid texture
     - [ ] turn on UV stretch in overlays to see and minimize stretch (distortion/stretch is fine for uniform colors)
     - [ ] try smart UV project 
 objects having similar geometries can copy UV maps from the well unwrapped one (e.g. subdivided geometry)
-
     - [ ] create image texture (4K, full white, no alpha if nothing transparent, 32-bit float) and save as Radiance HDR
     - [ ] ...
 
@@ -39,7 +38,8 @@ creating web page:
 
 - [x] interact with mouse button using raycaster, only on specific objects in array
     - [ ] project panels redirect to project websites
-    - [ ] trees do funsies
+    - [x] trees do funsies
+    - [x] door opens
     - [ ] directions pop information panel 
     - [ ] what is modal in HTML ?
 
@@ -54,7 +54,8 @@ creating web page:
 
 - [ ] change scene:
     - [x] make paths more visible
-    - [ ] add doors
+    ~~- [ ] add doors~~
+    - [x] add door
     - [x] rocks consistent with designs
     - [x] restore tree geometry
 
@@ -70,4 +71,7 @@ creating web page:
         - [x] move player according to new specs
         - [x] make rotation make sense
         - [x] add update in animate()
+
+- [ ] handle simultaneous key presses
+    - [ ] ultimate, salto, ...
 
