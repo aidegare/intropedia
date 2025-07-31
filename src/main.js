@@ -1,16 +1,24 @@
 import './style.css'
 
 import * as THREE from 'three';
+import Stats from 'three/addons/libs/stats.module.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
-
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { Octree } from "three/addons/math/Octree.js";
 import { Capsule } from "three/addons/math/Capsule.js";
+import { gsap } from 'gsap';
+
 
 
 const scene = new THREE.Scene();
 const canvas = document.querySelector('#experience');
 
+const clock = new THREE.Clock();
+const canvasStats = document.getElementById('stats');
+
+const stats = new Stats();
+canvasStats.appendChild( stats.dom );
 
 // Uncomment to see axes helper
 // const axesHelper = new THREE.AxesHelper( 100 );
@@ -42,6 +50,14 @@ let character = {
 };
 let targetRotation = 0;
 
+let prop = {
+  instance: null,
+  jumpHeight: 2,
+  jumpDuration: 0.2,
+  isDoorOpen: false,
+};
+
+
 
 
 const colliderOctree = new Octree();
@@ -59,7 +75,7 @@ const pointer = new THREE.Vector2();
 const intersectObjectsNames = [
   'big_tree',
   'big_tree001',
-  'big_tree003',
+  'big_tree002',
   'directions',
   'project1',
   'project2',
@@ -112,7 +128,8 @@ camera.position.y = 50;
 camera.position.z = -60;
 camera.zoom = 3;
 const cameraOffset = new THREE.Vector3(86, 50, -60);
-
+// const controls = new OrbitControls(camera, canvas);
+// controls.update();
 
 
 const dracoLoader = new DRACOLoader();
@@ -278,6 +295,7 @@ function updatePlayer(){
 function onKeyDown( event ) {
   // console.log(event);
   if (character.isMoving) return;
+  console.log(event.code.toLowerCase());
 
   if (event.code.toLowerCase() === 'keyr') {
     respawnCharacter();
@@ -331,9 +349,70 @@ function onResize() {
 
 
 
+
 function onClick() {
-  console.log(intersectObject);
-  // add functionalities
+  // console.log(intersectObject);
+  prop.instance = intersectObject;
+  const t1 = gsap.timeline();
+
+  const trees = ['big_tree', 'big_tree001', 'big_tree002'];
+  const projects = ['project1', 'project2'];
+  const props = ['directions', 'door'];
+
+  if (!prop.instance) return;
+
+
+  if (trees.includes(prop.instance.name)) {
+    t1.to(prop.instance.position, {
+      duration: prop.jumpDuration*2,
+      y: prop.instance.position.y + prop.jumpHeight*5,
+      yoyo: true,
+      repeat: 1,
+    });
+    t1.to(prop.instance.rotation, {
+      duration: 1,
+      y: prop.instance.rotation.y + Math.PI * 2,
+    }, 0);
+    t1.to(prop.instance.scale, {
+      duration: prop.jumpDuration*2,
+      x: prop.instance.scale.x * 1.2,
+      y: prop.instance.scale.y * 1.2,
+      z: prop.instance.scale.z * 1.2,
+      yoyo:true,
+      repeat:1,
+    }, 0);
+  }
+
+  if (projects.includes(prop.instance.name)) {
+    // smth for projects
+    console.log("You clicked on a project!");
+  }
+
+  if (props.includes(prop.instance.name)) {
+    console.log("You clicked on a prop!");
+    // door opening/closing
+    if (prop.instance.name === 'door'){
+      const door = prop.instance;
+      const t1 = gsap.timeline();
+
+    if (!prop.isDoorOpen) {
+      
+      t1.to(door.rotation, {
+        duration: 1,
+        y: door.rotation.y + Math.PI * 0.7,
+        ease: "power2.out"
+      });
+    } else {
+      
+      t1.to(door.rotation, {
+        duration: 1,
+        y: door.rotation.y - Math.PI * 0.7,
+        ease: "power2.inOut"
+      });
+    }
+    prop.isDoorOpen = !prop.isDoorOpen;
+    }
+  }
 }
 
 
@@ -349,6 +428,9 @@ function animate() {
   requestAnimationFrame( animate );
   onResize();
   updatePlayer();
+  stats.update();
+  const delta = clock.getDelta();
+
 
   // update the picking ray with the camera and pointer position
 	raycaster.setFromCamera( pointer, camera );
@@ -366,7 +448,7 @@ function animate() {
   }
 
 	for ( let i = 0; i < intersects.length; i ++ ) {
-	  intersectObject = intersects[0].object.parent.name;
+	  intersectObject = intersects[0].object.parent;
 	}
   if (character.instance) {
     const targetCameraPosition = new THREE.Vector3(
