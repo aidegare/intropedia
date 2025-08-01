@@ -407,7 +407,7 @@ function onClick() {
       t1.to(door.rotation, {
         duration: 1,
         y: door.rotation.y - Math.PI * 0.7,
-        ease: "power2.inOut"
+        ease: "power2.Out"
       });
     }
     prop.isDoorOpen = !prop.isDoorOpen;
