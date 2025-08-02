@@ -135,7 +135,7 @@ const cameraOffset = new THREE.Vector3(86, 50, -60);
 const dracoLoader = new DRACOLoader();
 
 // Specify path to a folder containing WASM/JS decoding libraries.
-dracoLoader.setDecoderPath( '/draco/' );
+dracoLoader.setDecoderPath( '/public/draco/' );
 
 // Optional: Pre-fetch Draco WASM/JS module.
 dracoLoader.preload();
@@ -144,7 +144,7 @@ loader.setDRACOLoader( dracoLoader );
 
 
 
-loader.load( '/models/crossy_road_w_colliders.glb', function ( glb ) {
+loader.load( '/public/models/crossy_road_w_colliders.glb', function ( glb ) {
   scene.add( glb.scene );
   // tell light that if child is mesh, then cast shadows
   glb.scene.traverse( function ( child ) {
