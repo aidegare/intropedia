@@ -51,7 +51,7 @@ creating web page:
     - [x] add respawn
         - [x] create spawn position for character
     *- [ ] add ultimate*
-    - [x] add 'wee' movement
+    
 
 - [ ] change scene:
     - [x] make paths more visible
@@ -74,5 +74,6 @@ creating web page:
         - [x] add update in animate()
 
 - [ ] handle simultaneous key presses
-    - [ ] ultimate, salto, ...
+    - [x] add 'wee' movement
+
 
