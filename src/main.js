@@ -49,6 +49,7 @@ let character = {
   spawnPosition: new THREE.Vector3(),
 };
 let targetRotation = 0;
+let isJumping = false;
 
 
 let prop = {
@@ -260,10 +261,15 @@ function playerCollisions() {
 
 
 
-
+const pressedButtons = {
+  up: false,
+  left: false,
+  right: false,
+  down: false,
+};
 
 const keysPressed = {};
-
+let t1;
 function onKeyDown( event ) {
   // console.log(event);
   if (character.isMoving) return;
@@ -284,69 +290,56 @@ function onKeyDown( event ) {
       break;
     case keysPressed['arrowleft'] && keysPressed['arrowright']:
     case keysPressed['keya'] && keysPressed['keyd']:
-    case keysPressed['arrowup'] && keysPressed['arrowdown']:
-    case keysPressed['keyw'] && keysPressed['keys']:
-      console.log('Backflip initiated!');
-      const t1 = gsap.timeline()
+      console.log('You pressed left and right at the same time');
+      t1 = gsap.timeline();
       t1.to(character.instance.rotation, {
         duration: 0.6,
         y: character.instance.rotation.y + Math.PI * 2,
       });
-
-      
-      
+      pressedButtons.left = false;
+      pressedButtons.right = false;
       break;
-    // case keysPressed['arrowleft'] && keysPressed['arrowup']:
-    //   console.log('Moving diagonally up left');
-    //   playerVelocity.x -= MO_SPEED/4;
-    //   playerVelocity.z += MO_SPEED/4;
-
-    //   break;
+    case keysPressed['arrowup'] && keysPressed['arrowdown']:
+    case keysPressed['keyw'] && keysPressed['keys']:
+      t1 = gsap.timeline();
+      t1.to(character.instance.rotation, {
+        duration: 0.6,
+        y: character.instance.rotation.y + Math.PI * 2,
+      });
+      pressedButtons.up = false;
+      pressedButtons.down = false;
+      break;
 
     default:
       break;
   }
 
-  if (
-    Object.values(keysPressed).some((pressed) => pressed) &&
-    !character.isMoving
-  ){
+  
 
-    switch (true) {
-    case keyEvent === 'keyw':
-    case keyEvent === 'arrowup':
-      playerVelocity.x -= MO_SPEED;
-      targetRotation = Math.PI / 2; // CHECK ROTATIONS PLS
+  switch (keyEvent) {
+    case 'keyw':
+    case 'arrowup':
+      pressedButtons.up = true;
       break;
 
-    case keyEvent === 'keys':
-    case keyEvent === 'arrowdown':
-      playerVelocity.x += MO_SPEED;
-      targetRotation = -Math.PI / 2;
+    case 'keys':
+    case 'arrowdown':
+      pressedButtons.down = true;
       break;  
     
-    case keyEvent === 'keya':
-    case keyEvent === 'arrowleft':
-      playerVelocity.z += MO_SPEED;
-      targetRotation = 0;
+    case 'keya':
+    case 'arrowleft':
+      pressedButtons.left = true;
       break;  
 
-    case keyEvent === 'keyd':
-    case keyEvent === 'arrowright':
-      playerVelocity.z -= MO_SPEED;
-      targetRotation = Math.PI;
+    case 'keyd':
+    case 'arrowright':
+      pressedButtons.right = true;
       break;
     
     default:
       return; // Exit if the key pressed is not one of the specified keys
   }
-  }
-  
-  
-    
-  playerVelocity.y = JUMP_FORCE;
-  character.isMoving = true;
-  
 }
 
 
@@ -356,7 +349,77 @@ function onKeyUp( event ) {
 
   if (!event.repeat)
     delete keysPressed[event.code.toLowerCase()];
-}; 
+  switch (event.code.toLowerCase()) {
+    case "keyw":
+    case "arrowup":
+      pressedButtons.up = false;
+      isJumping = false;
+      break;
+
+    case "keys":
+    case "arrowdown":
+      pressedButtons.down = false;
+      isJumping = false;
+      break;
+
+    case "keya":
+    case "arrowleft":
+      pressedButtons.left = false;
+      isJumping = false;
+      break;
+
+    case "keyd":
+    case "arrowright":
+      pressedButtons.right = false;
+      isJumping = false;
+      break;
+    default:
+      return;
+
+  }
+  character.isMoving = false;
+}
+
+
+
+
+
+function handleContinuousMovement() {
+  if (!character.instance) return;
+  if (
+    Object.values(pressedButtons).some((pressed) => pressed) &&
+    !character.isMoving && playerOnFloor
+  ){
+    if (pressedButtons.up) {
+      playerVelocity.x -= MO_SPEED;
+      targetRotation = Math.PI / 2; // CHECK ROTATIONS PLS
+    }
+    if (pressedButtons.down) {
+      playerVelocity.x += MO_SPEED;
+      targetRotation = -Math.PI / 2;
+    }
+    if (pressedButtons.left) {
+      isJumping = true;
+      playerVelocity.z += MO_SPEED;
+      targetRotation = 0;
+    }
+    if (pressedButtons.right) {
+      playerVelocity.z -= MO_SPEED;
+      targetRotation = Math.PI;
+    }
+    isJumping = true;
+    playerOnFloor = false; // until collision detects floor again
+    playerVelocity.y = JUMP_FORCE;
+  
+}
+
+  
+  
+  
+
+}
+
+
 
 // handles the resizing of the window
 function onResize() {
@@ -481,7 +544,11 @@ function updatePlayer(){
 
 
 
-
+window.addEventListener("blur", () => {
+  Object.keys(pressedButtons).forEach((key) => {
+    pressedButtons[key] = false;
+  });
+});
 
 window.addEventListener( 'pointermove', onPointerMove );
 window.addEventListener('resize', onResize);
@@ -495,6 +562,7 @@ function animate() {
   requestAnimationFrame( animate );
   onResize();
   updatePlayer();
+  handleContinuousMovement();
   stats.update();
   
 
@@ -526,13 +594,6 @@ function animate() {
     )
     camera.position.copy(targetCameraPosition);
     camera.lookAt(character.instance.position.x, 2, character.instance.position.z);
-
-
-  //   if (Math.abs(backflipRotation - character.instance.rotation.x) > 0.01) {
-  //   character.instance.rotation.x += (backflipRotation - character.instance.rotation.x) * BACKFLIP_SPEED;
-  // } else {
-  //   character.instance.rotation.x = backflipRotation; // snap to final position
-  // }
 
 }
 
