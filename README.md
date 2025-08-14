@@ -2,4 +2,4 @@
 
 This is very much a prototype so far but the idea with this is to have a mind palace online. I struggle a lot to remember things, be it from daily life or courses. I am someone who is very visual, yet struggle to visit this mind palace in stressful situations (and I'm very prone to stress). Moreover, I have some experience with Blender, so I had this idea. Don't hesitate to suggest some improvements !
 
-- [To-do list] (TODO.md)
+- [To-do list](TODO.md)
