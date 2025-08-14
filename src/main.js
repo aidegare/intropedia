@@ -290,7 +290,6 @@ function onKeyDown( event ) {
       break;
     case keysPressed['arrowleft'] && keysPressed['arrowright']:
     case keysPressed['keya'] && keysPressed['keyd']:
-      console.log('You pressed left and right at the same time');
       t1 = gsap.timeline();
       t1.to(character.instance.rotation, {
         duration: 0.6,
