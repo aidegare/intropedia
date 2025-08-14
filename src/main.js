@@ -50,6 +50,7 @@ let character = {
 };
 let targetRotation = 0;
 
+
 let prop = {
   instance: null,
   jumpHeight: 2,
@@ -229,12 +230,15 @@ function onPointerMove( event ) {
 function respawnCharacter() {
   if (!character.instance) return;
   character.instance.position.copy(character.spawnPosition);
+
   playerCollider.start.copy(character.spawnPosition).add(new THREE.Vector3(0, CAPSULE_RADIUS, 0));
   playerCollider.end.copy(character.spawnPosition).add(new THREE.Vector3(0, CAPSULE_HEIGHT, 0));
   
   character.isMoving = false;
   playerVelocity.set(0, 0, 0);
   targetRotation = 0;
+  character.instance.rotation.x = Math.PI;
+  
   
 }
 
@@ -254,82 +258,105 @@ function playerCollisions() {
 }
 
 
-// handles player movement, if they fall, if they're on the floor, checks for collisions
-// also handles the rotation of the player
-// lerps the rotation to make it smoother
-function updatePlayer(){
-  if (!character.instance) return;
-
-  if( character.instance.position.y < -20) {
-    respawnCharacter();
-    return;
-  }
-  
-  if (!playerOnFloor) {
-    playerVelocity.y -= GRAVITY * 0.1;
-  } 
-
-  playerCollider.translate(playerVelocity.clone().multiplyScalar(0.01));
-
-  playerCollisions();
-
-  character.instance.position.copy(playerCollider.start);
-  character.instance.position.y -= CAPSULE_RADIUS;
-
-  let rotationDiff =
-    ((((targetRotation - character.instance.rotation.y) % (2 * Math.PI)) +
-      3 * Math.PI) %
-      (2 * Math.PI)) -
-    Math.PI;
-  let finalRotation = character.instance.rotation.y + rotationDiff;
 
 
-  character.instance.rotation.y = THREE.MathUtils.lerp(
-    character.instance.rotation.y,
-    finalRotation,
-    0.1
-  );
-}
 
+
+const keysPressed = {};
 
 function onKeyDown( event ) {
   // console.log(event);
   if (character.isMoving) return;
-  console.log(event.code.toLowerCase());
+  // console.log(event.code.toLowerCase());
+  const keyEvent = event.code.toLowerCase();
+  
+  if (!event.repeat)
+    keysPressed[keyEvent] = true;
 
-  if (event.code.toLowerCase() === 'keyr') {
+  if (keyEvent === 'keyr') {
     respawnCharacter();
   }
 
-  switch(event.code.toLowerCase()) {
-    case 'keyw':
-    case 'arrowup':
+    // multiple keys
+  switch (true) {
+    case keysPressed['keyo'] && keysPressed['keyp']:
+      console.log('One Piece is REAAAAAL!');
+      break;
+    case keysPressed['arrowleft'] && keysPressed['arrowright']:
+    case keysPressed['keya'] && keysPressed['keyd']:
+    case keysPressed['arrowup'] && keysPressed['arrowdown']:
+    case keysPressed['keyw'] && keysPressed['keys']:
+      console.log('Backflip initiated!');
+      const t1 = gsap.timeline()
+      t1.to(character.instance.rotation, {
+        duration: 0.6,
+        y: character.instance.rotation.y + Math.PI * 2,
+      });
+
+      
+      
+      break;
+    // case keysPressed['arrowleft'] && keysPressed['arrowup']:
+    //   console.log('Moving diagonally up left');
+    //   playerVelocity.x -= MO_SPEED/4;
+    //   playerVelocity.z += MO_SPEED/4;
+
+    //   break;
+
+    default:
+      break;
+  }
+
+  if (
+    Object.values(keysPressed).some((pressed) => pressed) &&
+    !character.isMoving
+  ){
+
+    switch (true) {
+    case keyEvent === 'keyw':
+    case keyEvent === 'arrowup':
       playerVelocity.x -= MO_SPEED;
       targetRotation = Math.PI / 2; // CHECK ROTATIONS PLS
       break;
-    case 'keys':
-    case 'arrowdown':
+
+    case keyEvent === 'keys':
+    case keyEvent === 'arrowdown':
       playerVelocity.x += MO_SPEED;
       targetRotation = -Math.PI / 2;
-      break;
-    case 'keya':
-    case 'arrowleft':
+      break;  
+    
+    case keyEvent === 'keya':
+    case keyEvent === 'arrowleft':
       playerVelocity.z += MO_SPEED;
       targetRotation = 0;
-      break;
-    case 'keyd':
-    case 'arrowright':
+      break;  
+
+    case keyEvent === 'keyd':
+    case keyEvent === 'arrowright':
       playerVelocity.z -= MO_SPEED;
       targetRotation = Math.PI;
       break;
+    
     default:
       return; // Exit if the key pressed is not one of the specified keys
-    
   }
+  }
+  
+  
+    
   playerVelocity.y = JUMP_FORCE;
   character.isMoving = true;
+  
 }
 
+
+
+function onKeyUp( event ) {
+  // console.log(event);
+
+  if (!event.repeat)
+    delete keysPressed[event.code.toLowerCase()];
+}; 
 
 // handles the resizing of the window
 function onResize() {
@@ -415,12 +442,52 @@ function onClick() {
   }
 }
 
+// handles player movement, if they fall, if they're on the floor, checks for collisions
+// also handles the rotation of the player
+// lerps the rotation to make it smoother
+function updatePlayer(){
+  if (!character.instance || character.isFlipping) return;
+
+  if( character.instance.position.y < -20) {
+    respawnCharacter();
+    return;
+  }
+  
+  if (!playerOnFloor) {
+    playerVelocity.y -= GRAVITY * 0.1;
+  } 
+
+  playerCollider.translate(playerVelocity.clone().multiplyScalar(0.01));
+
+  playerCollisions();
+
+  character.instance.position.copy(playerCollider.start);
+  character.instance.position.y -= CAPSULE_RADIUS;
+
+  let rotationDiff =
+    ((((targetRotation - character.instance.rotation.y) % (2 * Math.PI)) +
+      3 * Math.PI) %
+      (2 * Math.PI)) - Math.PI;
+
+  let finalRotation = character.instance.rotation.y + rotationDiff;
+
+  character.instance.rotation.y = THREE.MathUtils.lerp(
+    character.instance.rotation.y,
+    finalRotation,
+    0.1
+  );
+  
+}
+
+
+
 
 
 window.addEventListener( 'pointermove', onPointerMove );
 window.addEventListener('resize', onResize);
 window.addEventListener('click', onClick);
 window.addEventListener('keydown', onKeyDown);
+document.addEventListener('keyup', onKeyUp);
 
 
 
@@ -429,7 +496,7 @@ function animate() {
   onResize();
   updatePlayer();
   stats.update();
-  const delta = clock.getDelta();
+  
 
 
   // update the picking ray with the camera and pointer position
@@ -450,6 +517,7 @@ function animate() {
 	for ( let i = 0; i < intersects.length; i ++ ) {
 	  intersectObject = intersects[0].object.parent;
 	}
+  // camera position follows the character
   if (character.instance) {
     const targetCameraPosition = new THREE.Vector3(
       character.instance.position.x + cameraOffset.x,
@@ -458,8 +526,15 @@ function animate() {
     )
     camera.position.copy(targetCameraPosition);
     camera.lookAt(character.instance.position.x, 2, character.instance.position.z);
-  }
-  
+
+
+  //   if (Math.abs(backflipRotation - character.instance.rotation.x) > 0.01) {
+  //   character.instance.rotation.x += (backflipRotation - character.instance.rotation.x) * BACKFLIP_SPEED;
+  // } else {
+  //   character.instance.rotation.x = backflipRotation; // snap to final position
+  // }
+
+}
 
   renderer.render( scene, camera );
   
