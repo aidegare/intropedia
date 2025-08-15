@@ -268,6 +268,14 @@ const pressedButtons = {
   down: false,
 };
 
+// Mobile controls
+const mobileControls = {
+  up: document.querySelector(".mobile-control.up-arrow"),
+  left: document.querySelector(".mobile-control.left-arrow"),
+  right: document.querySelector(".mobile-control.right-arrow"),
+  down: document.querySelector(".mobile-control.down-arrow"),
+};
+
 const keysPressed = {};
 let t1;
 function onKeyDown( event ) {
@@ -410,12 +418,7 @@ function handleContinuousMovement() {
     playerOnFloor = false; // until collision detects floor again
     playerVelocity.y = JUMP_FORCE;
   
-}
-
-  
-  
-  
-
+  }
 }
 
 
@@ -541,7 +544,35 @@ function updatePlayer(){
   
 }
 
+Object.entries(mobileControls).forEach(([direction, element]) => {
+  element.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    pressedButtons[direction] = true;
+  });
 
+  element.addEventListener("touchend", (e) => {
+    e.preventDefault();
+    pressedButtons[direction] = false;
+  });
+
+  element.addEventListener("mousedown", (e) => {
+    e.preventDefault();
+    pressedButtons[direction] = true;
+  });
+
+  element.addEventListener("mouseup", (e) => {
+    e.preventDefault();
+    pressedButtons[direction] = false;
+  });
+
+  element.addEventListener("mouseleave", (e) => {
+    pressedButtons[direction] = false;
+  });
+
+  element.addEventListener("touchcancel", (e) => {
+    pressedButtons[direction] = false;
+  });
+});
 
 window.addEventListener("blur", () => {
   Object.keys(pressedButtons).forEach((key) => {
