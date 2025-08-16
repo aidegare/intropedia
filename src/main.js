@@ -475,7 +475,6 @@ function onResize() {
 function onClick() {
   // console.log(intersectObject);
   prop.instance = intersectObject;
-  const t1 = gsap.timeline();
 
   const trees = ['big_tree', 'big_tree001', 'big_tree002'];
   const projects = ['project1', 'project2'];
@@ -485,6 +484,10 @@ function onClick() {
 
 
   if (trees.includes(prop.instance.name)) {
+
+    if (prop.isMoving) return;
+    const t1 = gsap.timeline({ onComplete: () => prop.isMoving = false });
+    prop.isMoving = true;
     t1.to(prop.instance.position, {
       duration: prop.jumpDuration*2,
       y: prop.instance.position.y + prop.jumpHeight*5,
@@ -535,8 +538,6 @@ function onClick() {
         ease: "power2.Out",
         onStart: hideModal(),
       });
-      // hideModal();
-
     }
     prop.isDoorOpen = !prop.isDoorOpen;
     }
