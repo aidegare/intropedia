@@ -73,7 +73,13 @@ creating web page:
         - [x] make rotation make sense
         - [x] add update in animate()
 
-- [ ] handle simultaneous key presses
+- [x] handle simultaneous key presses
     - [x] add 'wee' movement
+
+future ideas:
+- [ ] add quantum tarot (ideas: https://www.joedoucet.com/index/#/iota/ ; https://www.youtube.com/watch?v=Ru7SeyI8E4Y )
+- [ ] web-like structures for quantum info knowledge since main interest
+- [ ] electromag, SR and GR could be islands on water, with waves passing by and all 
+
 
 
