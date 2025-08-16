@@ -204,6 +204,7 @@ const modalTitle = document.querySelector('.modal-title');
 const modalProjectDescription = document.querySelector('.modal-project-description');
 const modalExitButton = document.querySelector('.modal-exit-button');
 const modalVisitButton = document.querySelector('.modal-project-visit-button');
+const onePieceIframe = document.getElementById("one-piece-iframe");
 
 
 function showModal(id) {
@@ -214,9 +215,9 @@ function showModal(id) {
     modalProjectDescription.textContent = project.description;
     modal.classList.toggle("hidden");
 
-    const onePieceIframe = document.getElementById("one-piece-iframe");
     if (id === "one piece") {
       onePieceIframe.style.display = "block";
+      onePieceIframe.play();
     } else {
       onePieceIframe.style.display = "none";
     }
@@ -233,6 +234,8 @@ function showModal(id) {
 function hideModal() {
   modal.classList.toggle("hidden");
   currentModal = null;
+  onePieceIframe.pause();
+  onePieceIframe.currentTime = 0;
 }
 
 // calculate pointer position in normalized device coordinates
@@ -313,7 +316,16 @@ function onKeyDown( event ) {
     // multiple keys
   switch (true) {
     case keysPressed['keyo'] && keysPressed['keyp']:
+      // if one piece is already open, close it and pause and reset video
+      if (currentModal === "one piece") {
+      modal.classList.toggle("hidden");
+      currentModal = null;
+      onePieceIframe.pause();
+      onePieceIframe.currentTime = 0;
+    } else {
       showModal('one piece');
+    }
+    break;
       break;
     // little 360 when two opposite directions are pressed
     case keysPressed['arrowleft'] && keysPressed['arrowright']:
