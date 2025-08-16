@@ -184,7 +184,7 @@ const modalContent = {
   },
   'project2':{
     title: 'Project 2',
-    description: 'Welcome to the first inner self to the quantum realm.',
+    description: 'Welcome to the first inner self-layer to the quantum realm.',
     link: 'http://example.com/',
   },
   'door':{
