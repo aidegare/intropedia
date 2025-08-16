@@ -5,12 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Intropedia</title>
     <link rel="icon" type="image/x-icon" href="/images/BOB.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jersey+10&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
     <div id="stats"></div>
     <div> 
       <canvas id="experience"></canvas>
+    </div>
+
+
+    <div class="modal hidden">
+      <div class="modal-wrapper">
+        <div class="modal-header">
+          <h1 class="modal-title">Project One</h1>
+          <button class="modal-exit-button">exit</button>
+        </div>
+        <div class="modal-content">
+          <div class="modal-content-wrapper">
+            <div class="modal-project-description"></div>
+            <video id="one-piece-iframe" height="315" 
+            src="./onepiece_real.mp4" type="video/mp4" autoplay controls></video>
+            <a href="#"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="modal-project-visit-button hidden">
+              View Project
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
     
     <!-- Mobile controls -->

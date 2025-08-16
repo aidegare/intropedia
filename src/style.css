@@ -2,6 +2,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: "Jersey 10", sans-serif;
 }
 
 
@@ -11,8 +12,103 @@ experience {
     height: 100%;
     top: 0;
     left: 0;
+    overflow: hidden
 }
 
+
+
+/* Utilities */
+
+.hidden {
+  display: none;
+}
+
+/* Modal */
+
+.modal{
+  z-index: 999;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  max-width: 700px;
+  background-color: burlywood;
+  border: 2px solid #ffffff;
+
+}
+
+.modal-wrapper{
+  padding: 12px;
+
+}
+
+.modal-header{
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #fff;
+  margin-bottom: 12px;
+
+}
+
+.modal-exit-button {
+  background: transparent;
+  border: 2px solid #fff;
+  color: #fff;
+  padding: 0px 14px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.modal-exit-button:hover {
+  background: #fff;
+  border: 2px solid #fff;
+  color: burlywood;
+  padding: 0px 14px;
+  cursor: pointer;
+}
+
+
+.modal-title {
+  font-size: 32px;
+}
+
+.modal-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+
+.modal-project-description {
+  font-size: 24px;
+}
+
+.modal-project-visit-button {
+  background: #fff;
+  border: 2px solid #fff;
+  color: burlywood;
+  padding: 8px 0px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 600;
+  text-decoration: none;
+  text-align: center;
+}
+
+.modal-project-visit-button:hover {
+  background: burlywood;
+  border: 2px solid #fff;
+  color: #fff;
+  cursor: pointer;
+}
+
+#one-piece-iframe {
+  display: none;
+}
 
 /* Mobile controls */
 
@@ -55,4 +151,15 @@ experience {
   .mobile-control {
     display: flex;
   }
+}
+
+@media screen and (max-width: 768px) {
+    .modal-content {
+        width: 100%;
+    }
+
+    video {
+        width: 100%;
+        height: auto;
+    }
 }

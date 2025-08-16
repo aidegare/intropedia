@@ -48,8 +48,7 @@ let character = {
   isMoving: false,
   spawnPosition: new THREE.Vector3(),
 };
-let targetRotation = 0;
-let isJumping = false;
+let targetRotation = 0; 
 
 
 let prop = {
@@ -57,6 +56,7 @@ let prop = {
   jumpHeight: 2,
   jumpDuration: 0.2,
   isDoorOpen: false,
+  isMoving: false,
 };
 
 
@@ -134,15 +134,15 @@ const cameraOffset = new THREE.Vector3(86, 50, -60);
 // controls.update();
 
 
-const dracoLoader = new DRACOLoader();
+// const dracoLoader = new DRACOLoader();
 
 // Specify path to a folder containing WASM/JS decoding libraries.
-dracoLoader.setDecoderPath( './draco/' );
+// dracoLoader.setDecoderPath( './draco/' );
 
 // Optional: Pre-fetch Draco WASM/JS module.
-dracoLoader.preload();
+// dracoLoader.preload();
 const loader = new GLTFLoader();
-loader.setDRACOLoader( dracoLoader );
+// loader.setDRACOLoader( dracoLoader );
 
 
 
@@ -176,56 +176,74 @@ loader.load( './models/crossy_road_w_colliders.glb', function ( glb ) {
 scene.add( loader );
 
 
+const modalContent = {
+  'project1':{
+    title: 'Project 1',
+    description: 'bro idk yet i need some time cmon :(',
+    link: 'http://example.com/',
+  },
+  'project2':{
+    title: 'Project 2',
+    description: 'Welcome to the first inner self to the quantum realm.',
+    link: 'http://example.com/',
+  },
+  'door':{
+    title: 'Door',
+    description: 'Are you sure you wish to venture this far ? ',
+    link: 'https://archive.org/details/ShhhItsASecret',
+  },
+  'one piece':{
+    title:'One Piece',
+    description: 'The One Piece is REAAAAAL!',
+  }
+};
+
+let currentModal = null;
+const modal = document.querySelector('.modal');
+const modalTitle = document.querySelector('.modal-title');
+const modalProjectDescription = document.querySelector('.modal-project-description');
+const modalExitButton = document.querySelector('.modal-exit-button');
+const modalVisitButton = document.querySelector('.modal-project-visit-button');
 
 
+function showModal(id) {
+  currentModal = id;
+  const project = modalContent[id];
+  if (project) {
+    modalTitle.textContent = project.title;
+    modalProjectDescription.textContent = project.description;
+    modal.classList.toggle("hidden");
 
-function onPointerMove( event ) {
+    const onePieceIframe = document.getElementById("one-piece-iframe");
+    if (id === "one piece") {
+      onePieceIframe.style.display = "block";
+    } else {
+      onePieceIframe.style.display = "none";
+    }
 
-	// calculate pointer position in normalized device coordinates
+    if (project.link){
+      modalVisitButton.href = project.link;
+      modalVisitButton.classList.remove("hidden");
+    }else {
+      modalVisitButton.classList.add("hidden");
+    }
+  }
+}
+
+function hideModal() {
+  modal.classList.toggle("hidden");
+  currentModal = null;
+}
+
+// calculate pointer position in normalized device coordinates
 	// (-1 to +1) for both components
+function onPointerMove( event ) {
 
 	pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
 	pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
 }
 
-// kept movements for reference, not used in this version
-// function moveCharacter(targetPosition, targetRotation) {
-//   character.isMoving = true;
-
-//   let rotationDiff =
-//     ((((targetRotation - character.instance.rotation.y) % (2 * Math.PI)) +
-//       3 * Math.PI) %
-//       (2 * Math.PI)) -
-//     Math.PI;
-//   let finalRotation = character.instance.rotation.y + rotationDiff;
-
-
-//   const t1 = gsap.timeline({ onComplete: () => {
-//     character.isMoving = false;
-//   }});
-
-//   t1.to(character.instance.position, {
-//     duration: character.jumpDuration,
-//     x: targetPosition.x,
-//     z: targetPosition.z,
-    
-//   });
-
-//   t1.to(character.instance.rotation, {
-//     duration: character.jumpDuration ,
-//     y: finalRotation,
-//   }, 0);
-
-//   t1.to(character.instance.position, 
-//   {
-//     y: character.instance.position.y + character.jumpHeight,
-//     duration: character.jumpDuration/2 ,
-//     yoyo: true,
-//     repeat: 1,
-//     ease: "power1.inOut",
-//   }, "<");
-// }
 
 //respawns the character to its original position
 function respawnCharacter() {
@@ -260,7 +278,7 @@ function playerCollisions() {
 
 
 
-
+// controls allowing for diagonal movement
 const pressedButtons = {
   up: false,
   left: false,
@@ -276,6 +294,7 @@ const mobileControls = {
   down: document.querySelector(".mobile-control.down-arrow"),
 };
 
+// Key press tracking
 const keysPressed = {};
 let t1;
 function onKeyDown( event ) {
@@ -294,8 +313,9 @@ function onKeyDown( event ) {
     // multiple keys
   switch (true) {
     case keysPressed['keyo'] && keysPressed['keyp']:
-      console.log('One Piece is REAAAAAL!');
+      showModal('one piece');
       break;
+    // little 360 when two opposite directions are pressed
     case keysPressed['arrowleft'] && keysPressed['arrowright']:
     case keysPressed['keya'] && keysPressed['keyd']:
       t1 = gsap.timeline();
@@ -350,7 +370,7 @@ function onKeyDown( event ) {
 }
 
 
-
+// key release tracking
 function onKeyUp( event ) {
   // console.log(event);
 
@@ -360,25 +380,21 @@ function onKeyUp( event ) {
     case "keyw":
     case "arrowup":
       pressedButtons.up = false;
-      isJumping = false;
       break;
 
     case "keys":
     case "arrowdown":
       pressedButtons.down = false;
-      isJumping = false;
       break;
 
     case "keya":
     case "arrowleft":
       pressedButtons.left = false;
-      isJumping = false;
       break;
 
     case "keyd":
     case "arrowright":
       pressedButtons.right = false;
-      isJumping = false;
       break;
     default:
       return;
@@ -390,7 +406,9 @@ function onKeyUp( event ) {
 
 
 
-
+// handles continuous movement, the second if statement first checks if any movement button from pressedButtons is currently pressed.
+// If so, the .some() returns true if at least one is pressed, and the function proceeds to apply movement if the character is not yet
+// moving and if on the floor so that it's only one step and jump at a time.
 function handleContinuousMovement() {
   if (!character.instance) return;
   if (
@@ -401,23 +419,23 @@ function handleContinuousMovement() {
       playerVelocity.x -= MO_SPEED;
       targetRotation = Math.PI / 2; // CHECK ROTATIONS PLS
     }
+
     if (pressedButtons.down) {
       playerVelocity.x += MO_SPEED;
       targetRotation = -Math.PI / 2;
     }
+
     if (pressedButtons.left) {
-      isJumping = true;
       playerVelocity.z += MO_SPEED;
       targetRotation = 0;
     }
+
     if (pressedButtons.right) {
       playerVelocity.z -= MO_SPEED;
       targetRotation = Math.PI;
     }
-    isJumping = true;
     playerOnFloor = false; // until collision detects floor again
     playerVelocity.y = JUMP_FORCE;
-  
   }
 }
 
@@ -441,7 +459,7 @@ function onResize() {
 
 
 
-
+// different interactions with the raycaster in the animate() function
 function onClick() {
   // console.log(intersectObject);
   prop.instance = intersectObject;
@@ -476,31 +494,37 @@ function onClick() {
   }
 
   if (projects.includes(prop.instance.name)) {
-    // smth for projects
-    console.log("You clicked on a project!");
+    showModal(prop.instance.name);
   }
 
+  
   if (props.includes(prop.instance.name)) {
-    console.log("You clicked on a prop!");
+    // console.log("You clicked on a prop!");
     // door opening/closing
-    if (prop.instance.name === 'door'){
+    if (prop.instance.name === 'door') {
       const door = prop.instance;
-      const t1 = gsap.timeline();
+      if (prop.isMoving) return;
+      prop.isMoving = true
+      const t1 = gsap.timeline({ onComplete: () => prop.isMoving = false });
 
     if (!prop.isDoorOpen) {
-      
+
       t1.to(door.rotation, {
         duration: 1,
         y: door.rotation.y + Math.PI * 0.7,
         ease: "power2.out"
       });
+      showModal(prop.instance.name);
     } else {
       
       t1.to(door.rotation, {
         duration: 1,
         y: door.rotation.y - Math.PI * 0.7,
-        ease: "power2.Out"
+        ease: "power2.Out",
+        onStart: hideModal(),
       });
+      // hideModal();
+
     }
     prop.isDoorOpen = !prop.isDoorOpen;
     }
@@ -541,9 +565,10 @@ function updatePlayer(){
     finalRotation,
     0.1
   );
-  
 }
-
+  
+// handles mobile controls allowing phone users to use the on-screen buttons, then adding a blur to prevent 
+// stuck movement
 Object.entries(mobileControls).forEach(([direction, element]) => {
   element.addEventListener("touchstart", (e) => {
     e.preventDefault();
@@ -580,6 +605,28 @@ window.addEventListener("blur", () => {
   });
 });
 
+
+modalExitButton.addEventListener("click", () => {
+  if (currentModal === "door" && prop.isDoorOpen && !prop.isMoving) {
+    // trigger door closing animation
+    prop.isMoving = true;
+    const door = prop.instance;
+    const t1 = gsap.timeline({
+      onComplete: () => {
+        prop.isMoving = false;
+        prop.isDoorOpen = false;
+      }
+    });
+    t1.to(door.rotation, {
+      duration: 1,
+      y: door.rotation.y - Math.PI * 0.7,
+      ease: "power2.Out",
+      onStart: hideModal(),
+    });
+  } else {
+    hideModal();
+  }
+});
 window.addEventListener( 'pointermove', onPointerMove );
 window.addEventListener('resize', onResize);
 window.addEventListener('click', onClick);
